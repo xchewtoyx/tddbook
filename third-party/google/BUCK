@@ -38,6 +38,7 @@ cxx_library(
     ['googletest/googlemock/src/*.cc'],
     excludes=['googletest/googlemock/src/gmock-all.cc']
   ),
+  deps = [ ':google-test' ],
   headers = subdir_glob([
     ('googletest/googlemock', 'src/**/*.h'),
     ('googletest/googlemock/include', '**/*.h'),

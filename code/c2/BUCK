@@ -1,0 +1,41 @@
+lib_template='soundex_%s'
+test_template ='soundex_%s_test'
+
+def library(target_path):
+    library_name = lib_template % (target_path,)
+    test_name = test_template % (target_path,)
+    srcs = glob(
+        ['%s/*.cpp' % (target_path,)],
+        excludes=['**/*Test.cpp', '**/main.cpp']
+    )
+    if srcs:
+        cxx_binary(
+            name = library_name,
+            headers = glob(['%s/*.h' % (target_path,)]),
+            srcs = srcs,
+            tests = [ ':' + test_name ],
+        )
+
+def testcase(target_path):
+    library_name = lib_template % (target_path,)
+    test_name = test_template % (target_path,)
+    srcs = glob(
+        ['%s/*.cpp' % (target_path,)],
+        excludes=['**/*Test.cpp', '**/main.cpp']
+    )
+    deps = []
+    if srcs:
+        deps = [ ':' + library_name ]
+    cxx_test(
+        name = test_name,
+        deps = [ '//third-party/google:google-mock' ] + deps,
+        srcs = glob([
+            '%s/*Test.cpp' % (target_path,),
+            '%s/main.cpp' % (target_path,),
+        ]),
+    )
+
+for target in glob(['**/CMakeLists.txt']):
+    target_path = target.rsplit('/', 1)[0]
+    library(target_path)
+    testcase(target_path)
